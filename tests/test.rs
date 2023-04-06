@@ -1,4 +1,4 @@
-use yaecs::{build_registry, query_entity, query_components};
+use yaecs::{build_registry, query_entity, query_components, ComponentRegistry};
 
 struct SimpleComponent(f32);
 
@@ -94,6 +94,38 @@ fn test_modifying_components() {
         let q2 = q;
         assert!(q2.is_none());
     }
+}
+#[test]
+fn test_identifier() {
+    struct Container{pub reg: ComponentRegistry};
+
+    impl Container {
+        pub fn do_query(&self){
+            {
+                let query = query_components!(self.reg: SimpleComponent, FillerComponentA);
+        
+                for (simple, ..) in query {
+                    assert!((*simple).0 == 7.7);
+                }
+            }
+        }
+    }
+
+    let mut container = Container{
+        reg: build_registry!(
+            SimpleComponent, 
+            ComplexComponent,
+            FillerComponentA,
+            FillerComponentB,
+            FillerComponentC,
+            FillerComponentD )
+    };
+
+    container.reg.new_entity().with_component(SimpleComponent(7.7)).with_component(FillerComponentA(1));
+    
+    container.do_query();
+
+    
 }
 
 
