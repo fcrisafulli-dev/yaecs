@@ -226,7 +226,7 @@ macro_rules! build_registry {
 /// ```
 #[macro_export]
 macro_rules! query_components {
-    ($r:tt: $($c:ty),+) => {
+    ($r:ident: $($c:ty),+) => {
         {
             use $crate::ecs::ComponentMask;
             use std::cell::RefMut;
@@ -269,12 +269,56 @@ macro_rules! query_components {
             flat_zip
         }
     };
+
+    ($s:ident.$r:ident: $($c:ty),+) => {
+        {
+            use $crate::ecs::ComponentMask;
+            use std::cell::RefMut;
+            use paste::paste;
+            //Get a component mask to filter with
+            let mut component_mask = ComponentMask::empty();
+            $(
+                component_mask |= $s.$r._mask_of::<$c>();
+            )+
+            
+            let filtered_indices = $s.$r.mask_filter(component_mask);
+
+            //Request the components
+            $(
+                paste!{
+                    #[allow(non_snake_case)]
+                    let mut [<macro_generated_ $c _request>] = $s.$r.id_filter::<$c>(&filtered_indices).into_iter();
+                }
+            )+
+
+            let mut flat_zip: Vec<(
+                $(
+                    RefMut<$c>,
+                )+
+            )> = Vec::with_capacity(filtered_indices.len());
+
+
+            for _ in filtered_indices {
+                flat_zip.push(
+                    (
+                        $(
+                            paste!{        
+                                    [<macro_generated_ $c _request>].next().unwrap()
+                            },
+                        )+
+                    )
+                )
+            }
+
+            flat_zip
+        }
+    };
 }
 
 /// Query components for a single entity
 #[macro_export]
 macro_rules! query_entity {
-    ($r:tt[$eid:expr]: $($c:ty),+) => {
+    ($r:ident[$eid:expr]: $($c:ty),+) => {
         {
             use $crate::ecs::ComponentMask;
             use std::cell::RefMut;
