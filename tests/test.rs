@@ -97,12 +97,12 @@ fn test_modifying_components() {
 }
 #[test]
 fn test_identifier() {
-    struct Container{pub reg: ComponentRegistry};
+    struct Container{pub reg: ComponentRegistry}
 
     impl Container {
         pub fn do_query(&self){
             {
-                let query = query_components!(self.reg: SimpleComponent, FillerComponentA);
+                let query = query_components!(self.reg => SimpleComponent, FillerComponentA);
         
                 for (simple, ..) in query {
                     assert!((*simple).0 == 7.7);
@@ -175,7 +175,7 @@ fn test_removing_components() {
     }
 
     {
-        let query = query_components!(registry: SimpleComponent);
+        let query = query_components!(registry => SimpleComponent);
         assert!(query.len() == 5);
 
         for simple in query {

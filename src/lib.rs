@@ -43,7 +43,7 @@ pub fn benchmark_4wide_query(){
     
 
     {
-        let qu = query_components!(r: Hp, UVec2, Pos, Light);
+        let qu = query_components!(r => Hp, UVec2, Pos, Light);
         for (mut a,mut b,mut c,mut d) in qu {
             (*a).0 = 99.99;
             (*b).0 = 99;

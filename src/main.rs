@@ -115,7 +115,7 @@ fn main() {
     }
 
     {
-        let qu = query_components!(r: Hp, UVec2);
+        let qu = query_components!(r => Hp, UVec2);
         dbg!(qu);
     }
 }
