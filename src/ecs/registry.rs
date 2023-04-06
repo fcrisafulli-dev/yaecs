@@ -1,6 +1,6 @@
 use super::{ComponentRegistry, MAX_ENTITY_CNT, ComponentMask, Mask};
 use std::{any::{TypeId, Any}, collections::HashMap, cell::{RefCell, RefMut}, rc::Rc};
-
+extern crate paste;
 
 
 
@@ -226,9 +226,11 @@ macro_rules! build_registry {
 /// ```
 #[macro_export]
 macro_rules! query_components {
-    ($r:ident: $($c:ty),+) => {
+    ($r:tt: $($c:ty),+) => {
         {
             use $crate::ecs::ComponentMask;
+            use std::cell::RefMut;
+            use paste::paste;
             //Get a component mask to filter with
             let mut component_mask = ComponentMask::empty();
             $(
@@ -239,13 +241,12 @@ macro_rules! query_components {
 
             //Request the components
             $(
-                paste::paste!{
+                paste!{
                     #[allow(non_snake_case)]
                     let mut [<macro_generated_ $c _request>] = $r.id_filter::<$c>(&filtered_indices).into_iter();
                 }
             )+
 
-            use std::cell::RefMut;
             let mut flat_zip: Vec<(
                 $(
                     RefMut<$c>,
@@ -257,7 +258,7 @@ macro_rules! query_components {
                 flat_zip.push(
                     (
                         $(
-                            paste::paste!{        
+                            paste!{        
                                     [<macro_generated_ $c _request>].next().unwrap()
                             },
                         )+
@@ -273,10 +274,14 @@ macro_rules! query_components {
 /// Query components for a single entity
 #[macro_export]
 macro_rules! query_entity {
-    ($r:ident[$eid:expr]: $($c:ty),+) => {
+    ($r:tt[$eid:expr]: $($c:ty),+) => {
         {
+            use $crate::ecs::ComponentMask;
+            use std::cell::RefMut;
+            use paste::paste;
+
             //Get a component mask to filter with
-            let mut component_mask = $crate::ecs::ComponentMask::empty();
+            let mut component_mask = ComponentMask::empty();
             $(
                 component_mask |= $r._mask_of::<$c>();
             )+
