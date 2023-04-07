@@ -275,7 +275,7 @@ macro_rules! query_components {
 /// Query components for a single entity
 #[macro_export]
 macro_rules! query_entity {
-    ($r:ident[$eid:expr] => $($c:ty),+) => {
+    ($r:expr;$eid:expr => $($c:ty),+) => {
         {
             use $crate::ecs::ComponentMask;
             use std::cell::RefMut;

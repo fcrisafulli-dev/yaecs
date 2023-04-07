@@ -40,7 +40,7 @@ fn test_adding_components() {
         .save_id();    
 
     {
-        let q = query_entity!(registry[my_entity] => SimpleComponent);
+        let q = query_entity!(registry;my_entity => SimpleComponent);
         let q = q.unwrap().0;
 
         assert!(q.0 == 7.7);
@@ -64,21 +64,21 @@ fn test_modifying_components() {
         .save_id();    
 
     {
-        let q = query_entity!(registry[my_entity] => SimpleComponent);
+        let q = query_entity!(registry;my_entity => SimpleComponent);
         let mut q = q.unwrap().0;
 
         (*q).0 = 1234.4321;
     }
     
     {
-        let q = query_entity!(registry[my_entity] => SimpleComponent);
+        let q = query_entity!(registry;my_entity => SimpleComponent);
         let q = q.unwrap().0;
 
         assert!(q.0 == 1234.4321);
     }
 
     {
-        let q = query_entity!(registry[my_entity] => SimpleComponent, ComplexComponent);
+        let q = query_entity!(registry;my_entity => SimpleComponent, ComplexComponent);
         let (mut s, mut c) = q.unwrap();
        
 
@@ -90,7 +90,7 @@ fn test_modifying_components() {
     
     {
         //uid 2 should not exist
-        let q = query_entity!(registry[2] => SimpleComponent, ComplexComponent);
+        let q = query_entity!(registry;2 => SimpleComponent, ComplexComponent);
         let q2 = q;
         assert!(q2.is_none());
     }
@@ -124,6 +124,11 @@ fn test_identifier() {
     container.reg.new_entity().with_component(SimpleComponent(7.7)).with_component(FillerComponentA(1));
     
     container.do_query();
+
+    {
+        let query = query_entity!(container.reg;0 => FillerComponentA);
+        assert!(!query.is_none());
+    }
 
     
 }
@@ -162,7 +167,7 @@ fn test_removing_components() {
           
 
     {
-        let query = query_entity!(registry[my_entity] => SimpleComponent);
+        let query = query_entity!(registry;my_entity => SimpleComponent);
         assert!(query.is_none() != true);
     }
 
@@ -170,7 +175,7 @@ fn test_removing_components() {
         let got_deleted = registry.delete_entity(my_entity);
         assert!(got_deleted); //Should delete
 
-        let query = query_entity!(registry[my_entity] => SimpleComponent);
+        let query = query_entity!(registry;my_entity => SimpleComponent);
         assert!(query.is_none());
     }
 
